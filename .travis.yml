@@ -11,12 +11,12 @@ language:
 #cache: ccache
 
 cache:
+  pip: true
   directories:
     - $HOME/.ccache
 
 python:
   - "2.7"
-  - "3.4"
   - "3.5"
   - "3.6"
 
@@ -29,32 +29,17 @@ env:
     - CCACHE_NODISABLE=true
     - CCACHE_MAXSIZE=500M
   matrix:
-    - GCC_VER=4.8
+    - GCC_VER=5.4
 
 before_install:
-  # we need latest pip to work with only-binary option
-  - pip install -U pip
-  - pip install -U pytest pep8 wheel pytest-forked
-  - pip install -U numpy scipy tqdm --only-binary numpy,scipy
-  # Right now we cannot use 1.1.0 version of Pandas
-  # because it introduces bug with series indexing using tuples:
-  # https://github.com/pandas-dev/pandas/issues/35534
-  - pip install -U 'pandas<1.1.0' --only-binary pandas
-  - pip install -U protobuf
-  # install boost
-  - sudo add-apt-repository universe
-  - sudo apt-get update
-  - sudo apt-get install libboost-all-dev
-  # configure ccache
-  # code from https://github.com/urho3d/Urho3D/blob/master/.travis.yml
-  - export PATH=$(whereis -b ccache |grep -o '\S*lib\S*'):$PATH
-  - export CXX=g++ CC=gcc PATH=$HOME:$PATH
+  - echo "before_install start"
+  - travis_scripts/before_install.sh
+  - echo "before_install done"
 
 install:
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then ./codestyle_checks.sh; fi
-  - mkdir build
-  - pushd build && cmake .. && make -j2 && file ./bin/bigartm && popd
-  - pushd python && python setup.py install && popd
+  - echo "install start"
+  - travis_scripts/install.sh
+  - echo "install done"
 
 before_script:
   - pushd test_data && ./download_datasets.sh && popd
