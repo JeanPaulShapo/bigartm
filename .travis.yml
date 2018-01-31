@@ -1,24 +1,16 @@
 language:
   - python
+
+python: 3.6
+
 # Currently Travis doesn't support multiple values for language variable
 #  - cpp
 
 #compiler:
 #  - gcc
 
-# not sure whether the following configuration will be available
-# with non-C/C++ language (e.g python)
-#cache: ccache
-
 cache:
-  pip: true
-  directories:
-    - $HOME/.ccache
-
-python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
+  ccache: true
 
 env:
   global:
@@ -28,8 +20,24 @@ env:
     - CCACHE_COMPRESS=true
     - CCACHE_NODISABLE=true
     - CCACHE_MAXSIZE=500M
-  matrix:
-    - GCC_VER=5.4
+
+matrix:
+  include:
+  - dist: xenial
+    python: "2.7"
+    env: GCC_VER=5.4 BUILD_BIGARTM_CLI=ON BUILD_PYTHON=OFF
+  - dist: xenial
+    python: "2.7"
+    env: GCC_VER=5.4 BUILD_BIGARTM_CLI=OFF BUILD_PYTHON=ON
+  - dist: xenial
+    python: "3.5"
+    env: GCC_VER=5.4 BUILD_BIGARTM_CLI=OFF BUILD_PYTHON=ON
+  - dist: xenial
+    python: "3.6"
+    env: GCC_VER=5.4 BUILD_BIGARTM_CLI=OFF BUILD_PYTHON=ON
+  - dist: xenial
+    python: "3.7"
+    env: GCC_VER=5.4 BUILD_BIGARTM_CLI=OFF BUILD_PYTHON=ON
 
 before_install:
   - echo "before_install start"

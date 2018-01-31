@@ -1,10 +1,19 @@
 #!/bin/bash
 
-
-if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then
+if [[ $BUILD_PYTHON == ON && $TRAVIS_PYTHON_VERSION == 2* ]]; then
     ./codestyle_checks.sh;
 fi
-CMAKE_OPTIONS=""
+
 mkdir build
-pushd build && cmake ${CMAKE_OPTIONS} .. && make -j2 && file ./bin/bigartm && popd
-pushd python && python setup.py install && popd
+
+pushd build
+cmake -DBUILD_BIGARTM_CLI=$BUILD_BIGARTM_CLI -DBUILD_INTERNAL_PYTHON_API=$BUILD_PYTHON ..
+make -j2
+[[ $BUILD_BIGARTM_CLI == ON ]] && file ./bin/bigartm
+popd
+
+if [[ $BUILD_PYTHON == ON ]]; then
+    pushd python
+    python setup.py install
+    popd
+fi

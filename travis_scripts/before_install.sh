@@ -1,18 +1,20 @@
 #!/bin/bash
 
-# 1. We need latest pip to work with --only-binary option
-echo "Update pip to latest version"
-pip install -U pip
+if [[ $BUILD_PYTHON == ON ]]; then
+    # 1. We need latest pip to work with --only-binary option
+    echo "Update pip to latest version"
+    pip install -U pip
 
-# 2. Install necessary python packages
-echo "Install necessart python packages"
-pip install -U pytest pep8 wheel pytest-forked
-pip install -U protobuf tqdm
-pip install -U numpy scipy --only-binary numpy,scipy
-# Right now we cannot use 1.1.0 version of Pandas
-# because it introduces bug with series indexing using tuples:
-# https://github.com/pandas-dev/pandas/issues/35534
-pip install -U 'pandas<1.1.0' --only-binary pandas
+    # 2. Install necessary python packages
+    echo "Install necessary python packages"
+    pip install -U pytest pep8 wheel pytest-forked
+    pip install -U protobuf tqdm
+    pip install -U numpy scipy --only-binary numpy,scipy
+    # Right now we cannot use 1.1.0 version of Pandas
+    # because it introduces bug with series indexing using tuples:
+    # https://github.com/pandas-dev/pandas/issues/35534
+    pip install -U 'pandas<1.1.0' --only-binary pandas
+fi
 
 # 3. Install boost
 echo "Install boost components"
