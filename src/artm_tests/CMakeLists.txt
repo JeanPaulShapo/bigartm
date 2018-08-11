@@ -23,9 +23,12 @@ set(SRC_LIST
 	${3RD_PARTY_DIR}/gtest/fused-src/gtest/gtest-all.cc
 )
 
-add_definitions("-Dartm_EXPORTS")
 add_executable(artm_tests ${SRC_LIST})
 add_dependencies(artm_tests messages_proto)
+target_compile_definitions(artm_tests PRIVATE
+  "artm_EXPORTS"
+  PROTOBUF_USE_DLLS
+  LIBPROTOBUF_EXPORTS)
 target_link_libraries(artm_tests artm-static ${BOOST_IMPORTED_TARGETS})
 target_include_directories(artm_tests PRIVATE
     ${3RD_PARTY_DIR}/gtest/fused-src/

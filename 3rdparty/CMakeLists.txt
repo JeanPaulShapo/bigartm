@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.0)
+cmake_minimum_required (VERSION 3.3)
 
 project(3rdparty)
 
@@ -32,8 +32,10 @@ add_dependencies(glog gflags)
 
 set(CMAKE_SKIP_INSTALL_RULES FALSE)
 
-set(CMAKE_INSTALL_INCLUDEDIR include/artm)
+# set(CMAKE_INSTALL_INCLUDEDIR include/artm)
 add_subdirectory(protobuf-3.0.0/cmake EXCLUDE_FROM_ALL)
+add_library(protobuf::libprotobuf ALIAS libprotobuf)
+add_executable(protobuf::protoc ALIAS protoc)
 set(PROTOBUF_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/protobuf-3.0.0/cmake CACHE "" INTERNAL)
 
 # This is a hack. We build libprotobuf (a STATIC library) with __dllexport

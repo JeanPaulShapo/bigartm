@@ -1,11 +1,11 @@
 project(artm)
 
 # find Protobuf
-find_package(ProtobufPlugin REQUIRED)
-if (NOT PROTOBUF_FOUND)
-  message(SEND_ERROR "Failed to find protobuf.")
-  return()
-endif (NOT PROTOBUF_FOUND)
+#find_package(ProtobufPlugin REQUIRED)
+#if (NOT PROTOBUF_FOUND)
+#  message(SEND_ERROR "Failed to find protobuf.")
+#  return()
+#endif (NOT PROTOBUF_FOUND)
 
 add_subdirectory(artm)
 

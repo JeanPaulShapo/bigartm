@@ -10,8 +10,8 @@ add_custom_command(
   DEPENDS
   ${CMAKE_CURRENT_LIST_DIR}/messages.proto
   ${CMAKE_CURRENT_LIST_DIR}/core/internals.proto
-  COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} artm/messages.proto --cpp_out=dllexport_decl=DLL_PUBLIC:./
-  COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} artm/core/internals.proto --cpp_out=./
+  COMMAND $<TARGET_FILE:protobuf::protoc> artm/messages.proto --cpp_out=dllexport_decl=DLL_PUBLIC:./
+  COMMAND $<TARGET_FILE:protobuf::protoc> artm/core/internals.proto --cpp_out=./
   COMMENT "Generating headers and sources from *.proto files"
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..)
 
@@ -72,8 +72,8 @@ add_library(internals_proto STATIC EXCLUDE_FROM_ALL
     core/internals.pb.h)
 add_dependencies(internals_proto proto_generation)
 
-target_link_libraries(internals_proto libprotobuf)
-target_link_libraries(messages_proto libprotobuf)
+target_link_libraries(internals_proto protobuf::libprotobuf)
+target_link_libraries(messages_proto protobuf::libprotobuf)
 target_compile_definitions(messages_proto PRIVATE ARTM_STATIC_DEFINE)
 if (MSVC)
     set_source_files_properties(${CMAKE_CURRENT_LIST_DIR}/messages.pb.cc
@@ -265,7 +265,12 @@ target_link_libraries(artm PRIVATE artm-static ${BOOST_IMPORTED_TARGETS})
 target_include_directories(artm PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>)
 target_include_directories(artm PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 # Support compiling with bundled protobuf headers from build-tree
-target_include_directories(artm PUBLIC $<BUILD_INTERFACE:${PROTOBUF_INCLUDE_DIR}>)
+#target_include_directories(artm PUBLIC $<BUILD_INTERFACE:${PROTOBUF_INCLUDE_DIRS}>)
+
+get_target_property(Protobuf_INCLUDE_DIRS protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(artm PUBLIC ${Protobuf_INCLUDE_DIRS})
+
+message(STATUS "Include directories for Protobuf are \"${Protobuf_INCLUDE_DIRS}\"")
 
 include(GenerateExportHeader)
 generate_export_header(artm

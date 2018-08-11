@@ -9,7 +9,7 @@ if (BUILD_INTERNAL_PYTHON_API)
 
   # perform "python setup.py build" during executing make
   add_custom_target(python_bigartm_build ALL
-    ${PYTHON} ${CMAKE_CURRENT_LIST_DIR}/setup.py build --protoc_executable=$<TARGET_FILE:protoc>
+    ${PYTHON} ${CMAKE_CURRENT_LIST_DIR}/setup.py build --protoc_executable=$<TARGET_FILE:protobuf::protoc>
     COMMENT "Building python package bigartm"
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   add_dependencies(python_bigartm_build protoc)
