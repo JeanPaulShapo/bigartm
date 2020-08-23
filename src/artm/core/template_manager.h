@@ -4,9 +4,8 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 
-#include "boost/thread/locks.hpp"
-#include "boost/thread/mutex.hpp"
 #include "boost/utility.hpp"
 
 #include "artm/core/common.h"
@@ -27,7 +26,7 @@ class TemplateManager : boost::noncopyable {
 
   // Store an object and returns its ID.
   int Store(const Type& object) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
 
     // iterate through instance_map_ until find an available slot
     while (map_.find(next_id_) != map_.end()) {
@@ -41,7 +40,7 @@ class TemplateManager : boost::noncopyable {
   }
 
   Type Get(int id) const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     auto iter = map_.find(id);
     return (iter == map_.end()) ? Type() : iter->second;
   }
@@ -53,7 +52,7 @@ class TemplateManager : boost::noncopyable {
     Type object;
 
     {
-      boost::lock_guard<boost::mutex> guard(lock_);
+      std::lock_guard<std::mutex> guard(lock_);
       auto iter = map_.find(id);
       if (iter != map_.end()) {
         object = iter->second;
@@ -64,7 +63,7 @@ class TemplateManager : boost::noncopyable {
   }
 
   void Clear() {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     map_.clear();
   }
 
@@ -72,7 +71,7 @@ class TemplateManager : boost::noncopyable {
   // Singleton (make constructor private)
   TemplateManager() : lock_(), next_id_(1) { }
 
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
 
   int next_id_;
   std::unordered_map<int, Type> map_;

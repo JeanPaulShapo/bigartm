@@ -5,11 +5,10 @@
 #include <queue>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <vector>
 #include <utility>
 
-#include "boost/thread/locks.hpp"
-#include "boost/thread/mutex.hpp"
 #include "boost/utility.hpp"
 
 #include "artm/core/common.h"
@@ -35,12 +34,12 @@ class ThreadSafeHolder : boost::noncopyable {
   ~ThreadSafeHolder() { }
 
   std::shared_ptr<T> get() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return object_;
   }
 
   std::shared_ptr<T> get_copy() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     if (object_ == nullptr) {
       return std::make_shared<T>();
     }
@@ -48,12 +47,12 @@ class ThreadSafeHolder : boost::noncopyable {
   }
 
   void set(const std::shared_ptr<T>& object) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     object_ = object;
   }
 
  private:
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::shared_ptr<T> object_;
 };
 
@@ -73,17 +72,17 @@ class ThreadSafeCollectionHolder : boost::noncopyable {
   ~ThreadSafeCollectionHolder() { }
 
   std::shared_ptr<T> get(const K& key) const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return get_locked(key);
   }
 
   bool has_key(const K& key) const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return object_.find(key) != object_.end();
   }
 
   void erase(const K& key) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     auto iter = object_.find(key);
     if (iter != object_.end()) {
       object_.erase(iter);
@@ -91,18 +90,18 @@ class ThreadSafeCollectionHolder : boost::noncopyable {
   }
 
   void clear() {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     object_.clear();
   }
 
   std::shared_ptr<T> get_copy(const K& key) const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     auto value = get_locked(key);
     return value != nullptr ? std::make_shared<T>(*value) : std::shared_ptr<T>();
   }
 
   void set(const K& key, const std::shared_ptr<T>& object) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     auto iter = object_.find(key);
     if (iter != object_.end()) {
       iter->second = object;
@@ -112,7 +111,7 @@ class ThreadSafeCollectionHolder : boost::noncopyable {
   }
 
   std::vector<K> keys() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     std::vector<K> retval;
     for (auto iter = object_.begin(); iter != object_.end(); ++iter) {
       retval.push_back(iter->first);
@@ -122,17 +121,17 @@ class ThreadSafeCollectionHolder : boost::noncopyable {
   }
 
   size_t size() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return object_.size();
   }
 
   bool empty() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return object_.empty();
   }
 
  private:
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::map<K, std::shared_ptr<T> > object_;
 
   // Use this instead of get() when the lock is already acquired.
@@ -148,7 +147,7 @@ class ThreadSafeQueue : boost::noncopyable {
   ThreadSafeQueue() : lock_(), queue_(), reserved_(0) { }
 
   bool try_pop(T* elem) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     if (queue_.empty()) {
       return false;
     }
@@ -160,34 +159,34 @@ class ThreadSafeQueue : boost::noncopyable {
   }
 
   void push(const T& elem) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     queue_.push(elem);
   }
 
   void reserve() {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     reserved_++;
   }
 
   void release() {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     if (reserved_ > 0) {
       reserved_--;
     }
   }
 
   size_t size() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return queue_.size() + reserved_;
   }
 
   bool empty() const {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     return queue_.empty();
   }
 
  private:
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::queue<T> queue_;
   size_t reserved_;
 };

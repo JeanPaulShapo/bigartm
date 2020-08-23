@@ -4,12 +4,11 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "boost/thread/locks.hpp"
-#include "boost/thread/mutex.hpp"
 #include "boost/utility.hpp"
 
 #include "artm/core/common.h"
@@ -35,7 +34,7 @@ class ScoreManager : boost::noncopyable {
 
  private:
   Instance* instance_;
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::unordered_map<ScoreName, std::shared_ptr<Score>> score_map_;
 };
 
@@ -55,7 +54,7 @@ class ScoreTracker : boost::noncopyable {
   size_t Size() const { return array_.size(); }
 
  private:
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::vector<std::shared_ptr<ScoreData>> array_;
 };
 

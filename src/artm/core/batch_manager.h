@@ -2,11 +2,10 @@
 
 #pragma once
 
+#include <mutex>
 #include <set>
 #include <string>
 
-#include "boost/thread.hpp"
-#include "boost/thread/mutex.hpp"
 #include "boost/utility.hpp"
 #include "boost/uuid/uuid.hpp"
 
@@ -33,7 +32,7 @@ class BatchManager : boost::noncopyable {
   void Callback(const boost::uuids::uuid& task_id);
 
  private:
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::set<boost::uuids::uuid> in_progress_;
 };
 

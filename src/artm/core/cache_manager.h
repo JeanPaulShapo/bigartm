@@ -3,12 +3,11 @@
 #pragma once
 
 #include <algorithm>
+#include <mutex>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "boost/thread/locks.hpp"
-#include "boost/thread/mutex.hpp"
 #include "boost/utility.hpp"
 
 #include "artm/core/common.h"
@@ -65,7 +64,7 @@ class CacheManager : boost::noncopyable {
   void CopyFrom(const CacheManager& cache_manager);
 
  private:
-  mutable boost::mutex lock_;
+  mutable std::mutex lock_;
   std::string disk_path_;
   Instance* instance_;
   mutable ThreadSafeCollectionHolder<std::string, ThetaCacheEntry> cache_;

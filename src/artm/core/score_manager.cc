@@ -30,7 +30,7 @@ void ScoreManager::Append(const ScoreName& score_name,
   // Note that the following operation must be atomic
   // (e.g. finding score / append score / setting score).
   // This is the reason to use explicit lock around score_map_ instead of ThreadSafeCollectionHolder.
-  boost::lock_guard<boost::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard(lock_);
   auto iter = score_map_.find(score_name);
   if (iter != score_map_.end()) {
     score_calculator->AppendScore(*iter->second, score_inc.get());
@@ -41,7 +41,7 @@ void ScoreManager::Append(const ScoreName& score_name,
 }
 
 void ScoreManager::Clear() {
-  boost::lock_guard<boost::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard(lock_);
   score_map_.clear();
 }
 
@@ -54,7 +54,7 @@ bool ScoreManager::RequestScore(const ScoreName& score_name,
   }
 
   if (score_calculator->is_cumulative()) {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     auto iter = score_map_.find(score_name);
     if (iter != score_map_.end()) {
       score_data->set_data(iter->second->SerializeAsString());
@@ -78,7 +78,7 @@ void ScoreManager::RequestAllScores(::google::protobuf::RepeatedPtrField< ::artm
 
   std::vector<ScoreName> score_names;
   {
-    boost::lock_guard<boost::mutex> guard(lock_);
+    std::lock_guard<std::mutex> guard(lock_);
     for (const auto& elem : score_map_) {
       score_names.push_back(elem.first);
     }
@@ -93,27 +93,27 @@ void ScoreManager::RequestAllScores(::google::protobuf::RepeatedPtrField< ::artm
 }
 
 void ScoreManager::CopyFrom(const ScoreManager& score_manager) {
-  boost::lock_guard<boost::mutex> guard(lock_);
-  boost::lock_guard<boost::mutex> guard2(score_manager.lock_);
+  std::lock_guard<std::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard2(score_manager.lock_);
   score_map_ = score_manager.score_map_;
 }
 
 void ScoreTracker::Clear() {
-  boost::lock_guard<boost::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard(lock_);
   array_.clear();
 }
 
 ScoreData* ScoreTracker::Add() {
   auto retval = std::make_shared<ScoreData>();
 
-  boost::lock_guard<boost::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard(lock_);
   array_.push_back(retval);
 
   return retval.get();
 }
 
 void ScoreTracker::RequestScoreArray(const GetScoreArrayArgs& args, ScoreArray* score_array) {
-  boost::lock_guard<boost::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard(lock_);
   for (auto& elem : array_) {
     if (elem->name() == args.score_name()) {
       score_array->add_score()->CopyFrom(*elem);
@@ -122,8 +122,8 @@ void ScoreTracker::RequestScoreArray(const GetScoreArrayArgs& args, ScoreArray* 
 }
 
 void ScoreTracker::CopyFrom(const ScoreTracker& score_tracker) {
-  boost::lock_guard<boost::mutex> guard(lock_);
-  boost::lock_guard<boost::mutex> guard2(score_tracker.lock_);
+  std::lock_guard<std::mutex> guard(lock_);
+  std::lock_guard<std::mutex> guard2(score_tracker.lock_);
   array_ = score_tracker.array_;
 }
 
