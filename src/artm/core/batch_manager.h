@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <set>
 #include <string>
 

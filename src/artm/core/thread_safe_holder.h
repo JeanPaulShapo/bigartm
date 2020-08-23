@@ -5,7 +5,7 @@
 #include <queue>
 #include <map>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <vector>
 #include <utility>
 

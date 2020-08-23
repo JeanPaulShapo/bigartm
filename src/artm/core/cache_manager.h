@@ -3,7 +3,7 @@
 #pragma once
 
 #include <algorithm>
-#include <mutex>
+#include <mutex>  // NOLINT
 #include <string>
 #include <utility>
 #include <vector>

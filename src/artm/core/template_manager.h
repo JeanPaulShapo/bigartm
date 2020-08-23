@@ -4,7 +4,7 @@
 
 #include <map>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT
 
 #include "boost/utility.hpp"
 
